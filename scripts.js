@@ -7,37 +7,68 @@ function BasicNumbersMatrix(){
     return r;
 }
 
-
-
-function printProcess(iteration){
-    if (iteration == undefined) iteration = 0;
-    basicNumbersMatrix = new BasicNumbersMatrix();
-
+function goClick(){
+    iteration = +this.id;
     startPage = document.forms["options"].startPage.value;
     finishPage = document.forms["options"].finishPage.value;
-    amountBuclets = Math.floor((finishPage - startPage)/(amountSheetsBooklet*4));
-    if (amountBuclets > iteration)
-        prntInterations(startPage,iteration,amountSheetsBooklet,basicNumbersMatrix);
-
-    console.log(basicNumbersMatrix[amountSheetsBooklet][iteration%2]);
-    //alert(amountBuclets);
+    this.disabled = true;
+    printProcess(iteration,startPage,finishPage);
     return false;
 }
-function prntInterations(startPage,iteration,amountSheetsBooklet,basicNumbersMatrix){
-    t = '';
-    basicNumbersMatrix[amountSheetsBooklet][iteration%2].forEach(function(v){
-        v += (+startPage - 1)+(4*amountSheetsBooklet*Math.floor(iteration%2));
-        if (t == '')
-            t = v;
-        else
-            t += ', ' + v;
-    })
-        t += '  <button name="start" onclick="printProcess('+(++iteration)+')">готово</button>'
 
-    iterationsInterface = document.getElementById("iterationsInterface").innerHTML = t;
+function printProcess(iteration,startPage,finishPage){
 
-   // iterationsInterface.innerText = ;
+    amountBuclets = Math.floor((finishPage - startPage)/(amountSheetsBooklet*4));
+    if (amountBuclets < (iteration/2))
+        return false;
+
+    numbersPages = calcNumbersPages(startPage,iteration,amountSheetsBooklet);
+    prntInterations(numbersPages);
 }
+
+
+function calcNumbersPages(startPage,iteration,amountSheetsBooklet){
+    basicNumbersMatrix = new BasicNumbersMatrix();
+    numsPages = '';
+    basicNumbersMatrix[amountSheetsBooklet][iteration%2].forEach(function(v){
+        v += (+startPage - 1)+(4*amountSheetsBooklet*Math.floor(iteration/2));
+        if (numsPages == '')
+            numsPages = v;
+        else
+            numsPages += ', ' + v;
+    });
+    return numsPages;
+}
+
+function prntInterations(numsPages){
+    iterationsInterface = document.getElementById("iterationsInterface");
+
+    buttonNextIteration = document.createElement("button");
+    buttonNextIteration.innerHTML = "готово";
+    buttonNextIteration.id = 1 + iteration;
+
+    textNumbersPages = document.createElement("input");
+    textNumbersPages.type = 'text';
+
+    textNumbersPages.className = 'numbers';
+
+    iterationsInterface.innerHTML += '<br>';
+    iterationsInterface.appendChild(textNumbersPages);
+    textNumbersPages = document.getElementsByClassName('numbers');
+    textNumbersPages = textNumbersPages[textNumbersPages.length - 1];
+    textNumbersPages.value = numsPages;
+    textNumbersPages.focus();
+    textNumbersPages.select();
+
+    console.log(textNumbersPages);
+
+
+    iterationsInterface.appendChild(buttonNextIteration);
+    document.getElementById(iteration + 1).onclick = goClick;
+
+}
+
+document.getElementById('0').onclick = goClick;
 
 
 
