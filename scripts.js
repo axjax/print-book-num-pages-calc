@@ -1,4 +1,5 @@
-amountSheetsBooklet = 4;
+AMOUNT_SHEETS_BOOKLET = 4;
+LENGH_LINE_LIM = 32;
 
 
 function BasicNumbersMatrix(){
@@ -7,7 +8,7 @@ function BasicNumbersMatrix(){
     return r;
 }
 
-function goClick(){
+function goClick(){//point in
     iteration = +this.id;
     startPage = document.forms["options"].startPage.value;
     finishPage = document.forms["options"].finishPage.value;
@@ -17,21 +18,20 @@ function goClick(){
 }
 
 function printProcess(iteration,startPage,finishPage){
-
-    amountBuclets = Math.floor((finishPage - startPage)/(amountSheetsBooklet*4));
+    amountBuclets = Math.floor((finishPage - startPage)/(AMOUNT_SHEETS_BOOKLET*4));
     if (amountBuclets < (iteration/2))
         return false;
 
-    numbersPages = calcNumbersPages(startPage,iteration,amountSheetsBooklet);
+    numbersPages = calcNumbersPages(startPage,iteration,AMOUNT_SHEETS_BOOKLET);
     prntInterations(numbersPages);
 }
 
 
-function calcNumbersPages(startPage,iteration,amountSheetsBooklet){
+function calcNumbersPages(startPage,iteration,AMOUNT_SHEETS_BOOKLET){
     basicNumbersMatrix = new BasicNumbersMatrix();
     numsPages = '';
-    basicNumbersMatrix[amountSheetsBooklet][iteration%2].forEach(function(v){
-        v += (+startPage - 1)+(4*amountSheetsBooklet*Math.floor(iteration/2));
+    basicNumbersMatrix[AMOUNT_SHEETS_BOOKLET][iteration%2].forEach(function(v){
+        v += (+startPage - 1)+(4*AMOUNT_SHEETS_BOOKLET*Math.floor(iteration/2));
         if (numsPages == '')
             numsPages = v;
         else
@@ -47,25 +47,47 @@ function prntInterations(numsPages){
     buttonNextIteration.innerHTML = "готово";
     buttonNextIteration.id = 1 + iteration;
 
-    textNumbersPages = document.createElement("input");
-    textNumbersPages.type = 'text';
 
-    textNumbersPages.className = 'numbers';
-
-    iterationsInterface.innerHTML += '<br>';
-    iterationsInterface.appendChild(textNumbersPages);
-    textNumbersPages = document.getElementsByClassName('numbers');
-    textNumbersPages = textNumbersPages[textNumbersPages.length - 1];
-    textNumbersPages.value = numsPages;
-    textNumbersPages.focus();
-    textNumbersPages.select();
-
-    console.log(textNumbersPages);
+    cuts = splitNumsPages(numsPages,LENGH_LINE_LIM);
+    cuts.forEach(function(v){
+        makeTextNumPages(iterationsInterface,v)
+    });
 
 
     iterationsInterface.appendChild(buttonNextIteration);
-    document.getElementById(iteration + 1).onclick = goClick;
 
+    iterationsInterface.appendChild(document.createElement('br'));
+    //container.innerHTML('x');
+    document.getElementById(iteration + 1).onclick = goClick;
+}
+function splitNumsPages(numsString,lim){
+    numbers = numsString.split(',');
+    amountCuts = Math.ceil(numsString.length/lim);
+    lenghtCuts = numbers.length/amountCuts;
+    cuts =  [];
+    for (var i = 0; i < amountCuts; i++)
+        cuts[i] = '';
+    numbers.forEach(function(v,i){
+        if ((i + 1)%lenghtCuts == 0)
+            cuts[Math.floor(i/lenghtCuts)] += v;
+        else
+            cuts[Math.floor(i/lenghtCuts)] += v + ', ';
+    });
+    return cuts;
+}
+
+function makeTextNumPages(container,text){
+    id = 'numbers'+document.getElementsByClassName('numbers').length;
+    textNumbersPages = document.createElement("input");
+    textNumbersPages.type = 'text';
+    textNumbersPages.className = 'numbers';
+    textNumbersPages.id = id;
+    textNumbersPages.value = text;
+    textNumbersPages.size = LENGH_LINE_LIM;
+    textNumbersPages.onclick = textNumbersPages.onfocus = function(){this.select(true); return false;};
+    t = container.appendChild(textNumbersPages);
+
+    console.log(t);
 }
 
 document.getElementById('0').onclick = goClick;
